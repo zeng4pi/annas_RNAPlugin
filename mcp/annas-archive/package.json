@@ -1,0 +1,22 @@
+{
+  "name": "annas-archive-mcp",
+  "version": "0.1.0",
+  "description": "stdio MCP server that wraps Anna's Archive search + Members fast-download API for the RNA Anna's Archive plugin.",
+  "type": "module",
+  "private": true,
+  "bin": {
+    "annas-archive-mcp": "./server.js"
+  },
+  "main": "./server.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "smoke": "node smoke.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "license": "MIT"
+}

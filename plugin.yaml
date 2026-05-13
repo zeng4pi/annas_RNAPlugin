@@ -1,0 +1,95 @@
+# Anna's Archive · RNA — plugin manifest
+# Conforms to Plugin_Composition_Spec_v1 (api_version 1, v1.2 fields used).
+# Schema: https://github.com/byenat/RNA/blob/main/docs/plugin_manifest.schema.json
+
+plugin:
+  id: io.zeng4pi.annas
+  name: "Anna's Archive · RNA"
+  slash_prefix: annas
+  version: 0.1.0
+  api_version: 1
+  description: "Search and import books and papers from Anna's Archive into your RNA Reader library."
+  authors:
+    - name: zeng4pi
+      contact: "https://github.com/zeng4pi"
+  license: MIT
+
+requires:
+  rna_min_version: 1.0.0
+
+contents:
+  skills:
+    - id: fetch-book
+      file: skills/fetch-book.skill.md
+      surfaced: true
+      auto_invoke: true
+      lazy_load: true
+
+  mcp_servers:
+    - id: annas-archive
+      transport: stdio
+      command: ./mcp/annas-archive/server.js
+      env_required:
+        - ANNAS_ARCHIVE_API_KEY
+      surfaced_name: "Anna's Archive"
+      user_config:
+        ANNAS_ARCHIVE_API_KEY:
+          type: string
+          title: "Anna's Archive Members API key"
+          description: "Required for downloads. Get one from https://annas-archive.org/account (membership required)."
+          required: true
+          sensitive: true
+        ANNAS_DOWNLOAD_MIRROR:
+          type: string
+          title: "Preferred download mirror"
+          description: "Anna's Archive mirror identifier used by the fast-download API. Typical values: lgrsfi, lgrsnf, zlib. Leave blank to let the server pick."
+          required: false
+          default: ""
+        ANNAS_DOWNLOAD_DIR:
+          type: directory
+          title: "Download directory"
+          description: "Where downloaded book files are written before the agent registers them with the Reader. Defaults to the plugin workspace."
+          required: false
+
+  config:
+    preferred_format: epub
+    preferred_language: en
+    max_results: 10
+    search_timeout_ms: 20000
+    download_timeout_ms: 180000
+
+preferences:
+  - key: preferred_format
+    label: "Preferred file format"
+    type: enum
+    enum: [epub, pdf, mobi, azw3, djvu, any]
+    default: epub
+    description: "Format the skill will prefer when multiple editions exist for a title."
+  - key: preferred_language
+    label: "Preferred language (ISO 639-1)"
+    type: string
+    default: en
+    description: "Two-letter language code (e.g. en, zh, ja). Use 'any' to disable language filtering."
+  - key: max_results
+    label: "Search results per query"
+    type: int
+    default: 10
+    description: "Upper bound on results the skill shows the user (1-50)."
+
+permissions:
+  # Anna's Archive front-end + two officially-listed mirrors. The fast-download API
+  # may return URLs on additional rotating mirrors; users can extend the allowlist
+  # at runtime via Settings → Plugins → Anna's Archive → Permissions.
+  network:
+    - "https://annas-archive.org/"
+    - "https://annas-archive.li/"
+    - "https://annas-archive.se/"
+  filesystem:
+    - plugin_workspace
+    - user_downloads
+  byok_keys:
+    - name: ANNAS_ARCHIVE_API_KEY
+      service: annas-archive
+      url_hint: "https://annas-archive.org/account"
+
+invariants_acknowledged: true
